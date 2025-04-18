@@ -244,6 +244,8 @@ function run_steps() {
     cp -r "$DEFAULT_COVERAGE_CONFIG" "$PYPROJECT_DIR/.coveragerc"
   fi
 
+  export PYTHONPATH=$PYTHONPATH:$PYPROJECT_DIR/src
+
   # Change to the service's directory.
   cd "$PYPROJECT_DIR"
   echo "Found pyproject.toml at: $PYPROJECT_DIR ✅"
