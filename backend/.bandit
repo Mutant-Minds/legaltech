@@ -1,2 +1,2 @@
 [bandit]
-exclude = ./env,./.env,./venv,./.venv,./scratch,__init__.py
+exclude = ./env,./.env,./venv,./.venv,./tests,./scratch,__init__.py

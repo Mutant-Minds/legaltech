@@ -1,10 +1,11 @@
 from http import HTTPStatus
+from httpx import AsyncClient
 import pytest
 import schemas
 
 
 @pytest.mark.asyncio
-async def test_health_probe(async_client):
+async def test_health_probe(async_client: AsyncClient) -> None:
     """
 
     Args:
