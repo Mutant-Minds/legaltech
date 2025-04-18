@@ -16,7 +16,20 @@ jobs:
         uses: docker/setup-compose-action@v1
 
       - name: Run Linter
-        run: ./ci/run_for_all_services.sh --run isort --run black --run bandit --run flake8 --run mypy
+        run: |
+          set -e
+
+          chmod +x ci/testing_for_all_services.sh
+
+          ./ci/testing_for_all_services.sh isort || { echo "isort failed"; exit 1; }
+
+          ./ci/testing_for_all_services.sh black || { echo "black failed"; exit 1; }
+
+          ./ci/testing_for_all_services.sh bandit || { echo "bandit failed"; exit 1; }
+
+          ./ci/testing_for_all_services.sh flake8 || { echo "flake8 failed"; exit 1; }
+
+          ./ci/testing_for_all_services.sh mypy || { echo "mypy failed"; exit 1; }
 
   test:
     runs-on: ubuntu-latest
@@ -28,5 +41,10 @@ jobs:
       - name: Setup Docker Compose
         uses: docker/setup-compose-action@v1
 
-      - name: Run Test
-        run: ./ci/run_for_all_services.sh --run pytest
+      - name: Run Tests
+        run: |
+          set -e
+          
+          chmod +x ci/testing_for_all_services.sh
+
+          ./ci/testing_for_all_services.sh pytest || { echo "pytest failed"; exit 1; }
