@@ -1,6 +1,8 @@
 from http import HTTPStatus
-from httpx import AsyncClient
+
 import pytest
+from httpx import AsyncClient
+
 import schemas
 
 
