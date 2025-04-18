@@ -14,9 +14,6 @@ jobs:
       - name: Set up Docker Compose
         uses: docker/setup-compose-action@v1
 
-      - name: Build test environment
-        run: docker compose build test
-
       - name: Run tests for all services and libs
         run: |
           SERVICES=$(ls -d backend/services/* backend/libs/* | grep -oE '[^/]+$')
