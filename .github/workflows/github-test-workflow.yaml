@@ -17,10 +17,19 @@ jobs:
       - name: Build test environment
         run: docker compose build test
 
-      - name: Run tests for all services
+      - name: Run tests for all services and libs
         run: |
           SERVICES=$(ls -d backend/services/* backend/libs/* | grep -oE '[^/]+$')
           for SERVICE in $SERVICES; do
+            for DIR in backend/services backend/libs; do
+              ENV_PATH="$DIR/$SERVICE/.env"
+              if [ ! -f "$ENV_PATH" ]; then
+                echo "Creating empty .env for $DIR/$SERVICE"
+                mkdir -p "$(dirname "$ENV_PATH")"
+                touch "$ENV_PATH"
+              fi
+            done
+
             echo "Running tests for service: $SERVICE"
             docker compose run --rm test $SERVICE --all
           done
