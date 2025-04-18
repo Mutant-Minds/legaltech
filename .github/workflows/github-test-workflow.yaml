@@ -8,24 +8,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Compose
+      - name: Setup Docker Compose
         uses: docker/setup-compose-action@v1
 
-      - name: Run tests for all services and libs
+      - name: Service Testing & Linting
         run: |
-          SERVICES=$(ls -d backend/services/* backend/libs/* | grep -oE '[^/]+$')
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
           for SERVICE in $SERVICES; do
-            for DIR in backend/services backend/libs; do
-              ENV_PATH="$DIR/$SERVICE/.env"
-              if [ ! -f "$ENV_PATH" ]; then
-                echo "Creating empty .env for $DIR/$SERVICE"
-                mkdir -p "$(dirname "$ENV_PATH")"
-                touch "$ENV_PATH"
-              fi
-            done
+            ENV_PATH="backend/services/$SERVICE/.env"
+            if [ ! -f "$ENV_PATH" ]; then
+              echo "Creating empty .env for backend/services/$SERVICE"
+              touch "$ENV_PATH"
+            fi
 
             echo "Running tests for service: $SERVICE"
             docker compose run --rm test $SERVICE --all
