@@ -19,9 +19,8 @@ error_handler() {
 }
 
 # Default values
-IS_CI="false"
-IS_LOCAL="true"
 BACKEND_DIR="/app/backend"
+
 # Declare the arrays
 declare -a ALL_STEPS
 declare -a LINT_STEPS
@@ -30,14 +29,13 @@ declare -a TEST_STEPS
 declare -A STEP_EXTRA_ARGUMENTS
 
 function usage() {
-  echo "usage: entrypoint.sh <service_name> (--ci|--local) [--all] [--run|--skip {step} <extra_args>] [--skip-coverage] [--run-coverage]"
+  echo "usage: entrypoint.sh <service_name> [--all] [--run|--skip {step} <extra_args>] [--skip-coverage] [--run-coverage]"
   echo ""
   echo "  <service_name>    : The name of the service or library (e.g., globdoc, specter)"
   echo ""
   echo "Valid steps: {${ALL_STEPS[*]}}"
   echo ""
   echo "Options:"
-  echo "  --ci/--local      : Current environment. When run locally, will attempt to fix errors."
   echo "  --all             : Run both the unit test and linting suites"
   echo "  --lint            : Run the full linting suite."
   echo "  --unit-test       : Run the full unit test suite."
@@ -61,7 +59,7 @@ shift # Remove the service name from the arguments list
 SCRIPT_ARGS=("$@")
 
 # Set options accepted by the CLI and all steps in the test suite.
-VALID_CLI_OPTIONS=("--all" "--lint" "--unit-test" "--ci" "--local" "--run" "--skip" "--skip-coverage" "--run-coverage" "--help" "-h")
+VALID_CLI_OPTIONS=("--all" "--lint" "--unit-test" "--run" "--skip" "--skip-coverage" "--run-coverage" "--help" "-h")
 LINT_STEPS=("bandit" "black" "flake8" "isort" "mypy")
 TEST_STEPS=("pytest")
 ALL_STEPS=("${TEST_STEPS[@]}" "${LINT_STEPS[@]}")
@@ -133,34 +131,6 @@ toggle_step() {
   done
 }
 
-########################################
-# Perform validation on script arguments
-########################################
-validate_input() {
-  # One of --ci or --local (but not both) must be set
-  if array_contains "--ci" "${SCRIPT_ARGS[@]}" && array_contains "--local" "${SCRIPT_ARGS[@]}"; then
-    printf "%b Only specify one of --ci or --local ❌\n" "${ERROR_PREFIX}"
-    usage
-  fi
-}
-
-########################################
-# Perform setup for running CI
-########################################
-ci_prepare() {
-  # CI is generally run in a base python image.
-  # Install Poetry if not already installed.
-  if ! command -v poetry &>/dev/null; then
-    echo "Installing Poetry..."
-    curl -sSL https://install.python-poetry.org | python3 -
-    export PATH="$HOME/.local/bin:$PATH" # Add Poetry to PATH
-  fi
-
-  # Install project dependencies.
-  echo "📦 Installing dependencies using Poetry..."
-  poetry install --no-interaction
-}
-
 ###############################################
 # Parse CLI flags and set variables accordingly
 ###############################################
@@ -172,7 +142,6 @@ function handle_input() {
     fi
 
     local run_steps=()  # Array to store steps specified with --run
-    local skip_mode=false  # Flag to indicate if we are processing --skip arguments
 
     while [[ $# -gt 0 ]]; do
         arg="$1"
@@ -180,20 +149,6 @@ function handle_input() {
         case "$arg" in
             --all)
                 toggle_step "on" "${ALL_STEPS[@]}"
-                shift
-                ;;
-            --ci)
-                IS_CI="true"
-                IS_LOCAL="false"
-                BLACK_ACTION="--check"
-                ISORT_ACTION="--diff --check-only"
-                shift
-                ;;
-            --local)
-                IS_LOCAL="true"
-                IS_CI="false"
-                BLACK_ACTION="--quiet"
-                ISORT_ACTION=""
                 shift
                 ;;
             --run)
@@ -278,14 +233,6 @@ function run_steps() {
     exit 1
   fi
 
-  # Change to the service's directory.
-  cd "$PYPROJECT_DIR"
-  echo "Found pyproject.toml at: $PYPROJECT_DIR ✅"
-
-  if [[ ${IS_CI} == "true" ]]; then
-    ci_prepare
-  fi
-
   # Copy config files
   echo "📂 Copying configuration files to $PYPROJECT_DIR"
   cp -r "$BACKEND_DIR/.bandit" "$PYPROJECT_DIR"
@@ -296,6 +243,10 @@ function run_steps() {
   if [[ -f "$DEFAULT_COVERAGE_CONFIG" ]]; then
     cp -r "$DEFAULT_COVERAGE_CONFIG" "$PYPROJECT_DIR/.coveragerc"
   fi
+
+  # Change to the service's directory.
+  cd "$PYPROJECT_DIR"
+  echo "Found pyproject.toml at: $PYPROJECT_DIR ✅"
 
   # Install dev dependencies
   echo "📦 Installing dependencies using Poetry..."
@@ -319,26 +270,6 @@ function run_steps() {
   }
   #set the cleanup function to run when the script exits.
   trap cleanup EXIT
-
-  # Source the Poetry virtual environment.
-  export PATH="$HOME/.local/bin:$PATH"
-  if ! VENV_PATH=$(poetry env info --path); then
-    echo -e "${ERROR_PREFIX} Failed to get Poetry virtual environment path.  Ensure poetry install has been run. ❌"
-    exit 1
-  fi
-
-  if [[ ! -d "$VENV_PATH/bin" ]]; then
-    echo -e "${ERROR_PREFIX} Virtual environment path '$VENV_PATH/bin' is not a directory.  Expected an activate script to be here. ❌"
-    exit 1
-  fi
-
-  ACTIVATE_SCRIPT="$VENV_PATH/bin/activate"
-  if [[ ! -x "$ACTIVATE_SCRIPT" ]]; then
-    echo -e "${ERROR_PREFIX} Activate script '$ACTIVATE_SCRIPT' is not executable or does not exist. ❌"
-    exit 1
-  fi
-  # shellcheck source=/path/to/activate
-  source "$ACTIVATE_SCRIPT"
 
   # Check which steps are active and run them.
   if [[ ${STEPS_ACTIVE_MAP[black]} == "true" ]]; then
@@ -377,6 +308,5 @@ function run_steps() {
   fi
 }
 
-validate_input
 handle_input "$@"
 run_steps
