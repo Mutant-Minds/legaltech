@@ -1,0 +1,64 @@
+services:
+  pgdb:
+    image: postgres:latest
+    container_name: pgdb
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changethis
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - legaltech
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    depends_on:
+      - pgdb
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@legaltech.com
+      PGADMIN_DEFAULT_PASSWORD: changethis
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - legaltech
+
+  globdoc:
+    build:
+      context: ./backend
+      dockerfile: ./../docker/globdoc.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    depends_on:
+      - pgdb
+    env_file:
+      - ./backend/services/globdoc/.env
+    ports:
+      - '8000:8080'
+    expose:
+      - '8080'
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/test.dockerfile
+    volumes:
+      - .:/app
+      - ./docker/entrypoints:/entrypoints
+    entrypoint: [ "/bin/bash", "/entrypoints/run_test.sh" ]
+    environment:
+      - PYTHONPATH=/app
+
+volumes:
+  pg-data:
+  pgadmin-data:
+
+networks:
+  legaltech:
+    driver: bridge
