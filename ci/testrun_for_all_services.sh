@@ -2,6 +2,7 @@
 set -euo pipefail
 
 COMMAND=$1
+EXTRA_ARGUMENTS="${@:2}"
 
 SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
 for SERVICE in $SERVICES; do
@@ -12,5 +13,5 @@ for SERVICE in $SERVICES; do
   fi
 
   echo "Running '$COMMAND' for service: $SERVICE"
-  docker compose run --rm test "$SERVICE" --run "$COMMAND"
+  docker compose run --rm test "$SERVICE" --run "$COMMAND" "$EXTRA_ARGUMENTS"
 done

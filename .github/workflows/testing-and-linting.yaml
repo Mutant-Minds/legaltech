@@ -18,7 +18,7 @@ jobs:
       - name: Run ISort
         run: |
           chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh isort
+          ./ci/testrun_for_all_services.sh isort --check-only
 
   black:
     runs-on: ubuntu-latest

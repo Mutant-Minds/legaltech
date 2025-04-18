@@ -55,9 +55,6 @@ fi
 SERVICE="$1"
 shift # Remove the service name from the arguments list
 
-# Stores all arguments passed to the script
-SCRIPT_ARGS=("$@")
-
 # Set options accepted by the CLI and all steps in the test suite.
 VALID_CLI_OPTIONS=("--all" "--lint" "--unit-test" "--run" "--skip" "--skip-coverage" "--run-coverage" "--help" "-h")
 LINT_STEPS=("bandit" "black" "flake8" "isort" "mypy")
