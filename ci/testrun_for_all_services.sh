@@ -12,5 +12,5 @@ for SERVICE in $SERVICES; do
   fi
 
   echo "Running '$COMMAND' for service: $SERVICE"
-  docker compose run --rm test "$SERVICE" "$COMMAND"
+  docker compose run --rm test "$SERVICE" --run "$COMMAND"
 done
