@@ -1,0 +1,91 @@
+name: Testing & Linting
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run ISort
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh isort --check-only
+
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run Black
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh black
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run Bandit
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh bandit
+
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run Flake8
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh flake8
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run MyPy
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh mypy
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Run Pytest
+        run: |
+          chmod +x ci/testrun_for_all_services.sh
+          ./ci/testrun_for_all_services.sh pytest
