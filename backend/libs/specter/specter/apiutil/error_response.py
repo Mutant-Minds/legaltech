@@ -1,3 +1,4 @@
+from specter.schemas import ErrorMessage, UnauthorizedMessage
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
@@ -5,8 +6,6 @@ from starlette.status import (
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
 )
-
-from specter.schemas.common import ErrorMessage, UnauthorizedMessage
 
 """
 Usage: https://fastapi.tiangolo.com/advanced/additional-responses/
