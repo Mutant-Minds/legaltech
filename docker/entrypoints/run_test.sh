@@ -237,7 +237,6 @@ function run_steps() {
   cp -r "$BACKEND_DIR/.bandit" "$PYPROJECT_DIR"
   cp -r "$BACKEND_DIR/.flake8" "$PYPROJECT_DIR"
   cp -r "$BACKEND_DIR/mypy.ini" "$PYPROJECT_DIR"
-  cp -r "$BACKEND_DIR/pytest.ini" "$PYPROJECT_DIR"
   DEFAULT_COVERAGE_CONFIG="$BACKEND_DIR/.coveragerc"
   if [[ -f "$DEFAULT_COVERAGE_CONFIG" ]]; then
     cp -r "$DEFAULT_COVERAGE_CONFIG" "$PYPROJECT_DIR/.coveragerc"
@@ -272,7 +271,6 @@ function run_steps() {
     rm -rf "$PYPROJECT_DIR/.bandit"
     rm -rf "$PYPROJECT_DIR/.flake8"
     rm -rf "$PYPROJECT_DIR/mypy.ini"
-    rm -rf "$PYPROJECT_DIR/pytest.ini"
     rm -rf "$PYPROJECT_DIR/.coveragerc"
   }
   #set the cleanup function to run when the script exits.
