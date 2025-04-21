@@ -6,7 +6,7 @@ from starlette.status import (
     HTTP_409_CONFLICT,
 )
 
-from specter.schemas import ErrorMessage, UnauthorizedMessage
+from specter.schemas.common import ErrorMessage, UnauthorizedMessage
 
 """
 Usage: https://fastapi.tiangolo.com/advanced/additional-responses/

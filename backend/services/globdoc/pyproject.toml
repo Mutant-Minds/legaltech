@@ -58,9 +58,9 @@ SQLALCHEMY_DATABASE_URI="postgresql://testuser:testpassword@localhost/test"
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 skip-string-normalization = false
-include = '\.pyi?$'
+include = "\\.pyi?$"
 exclude = '''
 /(
     \.venv

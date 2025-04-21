@@ -26,14 +26,14 @@ watchdog = "^5.0.2"
 [tool.pytest.ini_options]
 pythonpath = [
     ".",
-    "specter",
+    "src",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 skip-string-normalization = false
-include = '\.pyi?$'
+include = "\\.pyi?$"
 exclude = '''
 /(
     \.venv

@@ -33,7 +33,7 @@ async def request_validation_exception_handler(
     return JSONResponse(content=payload, status_code=HTTP_400_BAD_REQUEST)
 
 
-def register_handlers(app: FastAPI):
+def register_handlers(app: FastAPI) -> FastAPI:
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(
         RequestValidationError, request_validation_exception_handler

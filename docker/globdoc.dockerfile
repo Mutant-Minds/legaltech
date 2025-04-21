@@ -34,14 +34,13 @@ COPY services/globdoc/poetry.lock .
 COPY ./libs ./libs
 
 # Update path in pyproject.toml to match the Docker structure i.e. adjust dependency path
-RUN sed -i 's#specter = {path="../../libs/specter"}#specter = {path="./libs/specter"}#' pyproject.toml
+RUN sed -i -E 's#specter *= *\{ *path *= *"../../libs/specter" *\}#specter = {path="./libs/specter"}#' pyproject.toml
 
 # Install dependencies
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
 # Copy source code
 COPY services/globdoc/src/ .
-COPY services/globdoc/docs/ ./docs
 
 # expose ports!
 EXPOSE 8080
