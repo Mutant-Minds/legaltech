@@ -291,12 +291,12 @@ function run_steps() {
   # Check which steps are active and run them.
   if [[ ${STEPS_ACTIVE_MAP[black]} == "true" ]]; then
     echo "Running black... 🧹"
-    eval "poetry run black ${BLACK_ACTION} ${STEP_EXTRA_ARGUMENTS[black]} . $SPECTER_DIR"
+    eval "poetry run black ${STEP_EXTRA_ARGUMENTS[black]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[isort]} == "true" ]]; then
     echo "Running isort... 🧽"
-    eval "poetry run isort ${ISORT_ACTION} ${STEP_EXTRA_ARGUMENTS[isort]} . $SPECTER_DIR"
+    eval "poetry run isort ${STEP_EXTRA_ARGUMENTS[isort]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[flake8]} == "true" ]]; then

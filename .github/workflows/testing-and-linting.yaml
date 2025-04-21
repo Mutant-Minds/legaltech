@@ -18,7 +18,7 @@ jobs:
       - name: Run ISort
         run: |
           chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh isort --check-only
+          ./ci/testrun_for_all_services.sh isort --check-only --diff
 
   black:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
       - name: Run Black
         run: |
           chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh black
+          ./ci/testrun_for_all_services.sh black --check
 
   bandit:
     runs-on: ubuntu-latest
