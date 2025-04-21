@@ -4,9 +4,6 @@ set -euo pipefail
 COMMAND=$1
 EXTRA_ARGUMENTS=("${@:2}")
 
-echo "Running '$COMMAND' for libs (specter)"
-docker compose run --rm test specter --run "$COMMAND" "${EXTRA_ARGUMENTS[@]}"
-
 SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
 for SERVICE in $SERVICES; do
   ENV_PATH="backend/services/$SERVICE/.env"
@@ -18,3 +15,6 @@ for SERVICE in $SERVICES; do
   echo "Running '$COMMAND' for service: $SERVICE"
   docker compose run --rm test "$SERVICE" --run "$COMMAND" "${EXTRA_ARGUMENTS[@]}"
 done
+
+echo "Running '$COMMAND' for libs (specter)"
+docker compose run --rm test specter --run "$COMMAND" "${EXTRA_ARGUMENTS[@]}"
