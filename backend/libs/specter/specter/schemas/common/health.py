@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 
 class HealthStatus(str, Enum):
-    OK: str = "OK"
-    DEGRADED: str = "DEGRADED"
-    ERROR: str = "ERROR"
+    OK = "OK"
+    DEGRADED = "DEGRADED"
+    ERROR = "ERROR"
 
 
 class Dependency(BaseModel):

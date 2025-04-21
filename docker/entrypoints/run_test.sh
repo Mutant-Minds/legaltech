@@ -216,8 +216,10 @@ function run_steps() {
   # Determine the service directory.
   if [[ -d "$BACKEND_DIR/services/$SERVICE" ]]; then
     SERVICE_DIR="$BACKEND_DIR/services/$SERVICE"
+    SERVICE_TYPE="service"
   elif [[ -d "$BACKEND_DIR/libs/$SERVICE" ]]; then
     SERVICE_DIR="$BACKEND_DIR/libs/$SERVICE"
+    SERVICE_TYPE="library"
   else
     echo -e "${ERROR_PREFIX} Service or library '$SERVICE' not found in services or libs directory. ❌"
     exit 1
@@ -241,7 +243,13 @@ function run_steps() {
     cp -r "$DEFAULT_COVERAGE_CONFIG" "$PYPROJECT_DIR/.coveragerc"
   fi
 
-  export PYTHONPATH=$PYTHONPATH:$PYPROJECT_DIR/src
+  # Set PYTHONPATH dynamically
+  if [[ "$SERVICE_TYPE" == "service" ]]; then
+    export PYTHONPATH="$PYPROJECT_DIR/src:$BACKEND_DIR/libs/specter"
+  else
+    export PYTHONPATH="$BACKEND_DIR/libs/$SERVICE"
+  fi
+  echo "PythonPath :: $PYTHONPATH"
 
   # Change to the service's directory.
   cd "$PYPROJECT_DIR"
@@ -270,40 +278,50 @@ function run_steps() {
   #set the cleanup function to run when the script exits.
   trap cleanup EXIT
 
+  # Always include specter in linting and testing
+  SPECTER_DIR="$BACKEND_DIR/libs/specter"
+
+  # Determine source directories for coverage
+  if [[ "$SERVICE_TYPE" == "service" ]]; then
+    COVERAGE_SOURCE="--cov=$PYPROJECT_DIR/src --cov=$SPECTER_DIR"
+  else
+    COVERAGE_SOURCE="--cov=$PYPROJECT_DIR" # For libraries
+  fi
+
   # Check which steps are active and run them.
   if [[ ${STEPS_ACTIVE_MAP[black]} == "true" ]]; then
     echo "Running black... 🧹"
-    eval "poetry run black ${BLACK_ACTION} ${STEP_EXTRA_ARGUMENTS[black]} ."
+    eval "poetry run black ${STEP_EXTRA_ARGUMENTS[black]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[isort]} == "true" ]]; then
     echo "Running isort... 🧽"
-    eval "poetry run isort ${ISORT_ACTION} ${STEP_EXTRA_ARGUMENTS[isort]} ."
+    eval "poetry run isort ${STEP_EXTRA_ARGUMENTS[isort]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[flake8]} == "true" ]]; then
     echo "Running flake8... 🧐"
-    eval "poetry run flake8 ${STEP_EXTRA_ARGUMENTS[flake8]} ."
+    eval "poetry run flake8 ${STEP_EXTRA_ARGUMENTS[flake8]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[mypy]} == "true" ]]; then
     echo "Running mypy... 🐍"
-    eval "poetry run mypy ${STEP_EXTRA_ARGUMENTS[mypy]} ."
+    eval "poetry run mypy ${STEP_EXTRA_ARGUMENTS[mypy]} . $SPECTER_DIR"
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[pytest]} == "true" ]]; then
     if [[ ${SKIP_COVERAGE} == "true" ]]; then
       echo "Running pytest... ✅"
-      eval "poetry run pytest ${STEP_EXTRA_ARGUMENTS[pytest]}"
+      eval "poetry run pytest ${STEP_EXTRA_ARGUMENTS[pytest]} tests $SPECTER_DIR/tests"
     else
       echo "Running pytest with coverage... ✅"
-      eval "poetry run pytest --cov=. --cov-report=term-missing ${STEP_EXTRA_ARGUMENTS[pytest]}"
+      eval "poetry run pytest $COVERAGE_SOURCE --cov-report=term-missing --cov-branch ${STEP_EXTRA_ARGUMENTS[pytest]} tests $SPECTER_DIR/tests"
     fi
   fi
 
   if [[ ${STEPS_ACTIVE_MAP[bandit]} == "true" ]]; then
     echo "Running bandit... 🕵️"
-    eval "poetry run bandit --ini .bandit -rq ${STEP_EXTRA_ARGUMENTS[bandit]} ."
+    eval "poetry run bandit --ini .bandit -rq ${STEP_EXTRA_ARGUMENTS[bandit]} . $SPECTER_DIR"
   fi
 }
 
