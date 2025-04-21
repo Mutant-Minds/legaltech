@@ -1,13 +1,9 @@
-from pathlib import Path
 from typing import AsyncGenerator
 
 import pytest
-from dotenv import load_dotenv
 from httpx import AsyncClient
 
-load_dotenv(dotenv_path=Path(__file__).parent / ".env.test", override=True)
-
-from app import app  # noqa: E402
+from app import app
 
 
 @pytest.fixture(scope="session")
