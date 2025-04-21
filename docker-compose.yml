@@ -54,6 +54,7 @@ services:
     entrypoint: [ "/bin/bash", "/entrypoints/run_test.sh" ]
     environment:
       - PYTHONPATH=/app
+      - ENVIRONMENT=test
 
 volumes:
   pg-data:
