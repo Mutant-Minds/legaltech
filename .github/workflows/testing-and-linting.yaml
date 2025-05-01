@@ -6,25 +6,8 @@ on:
       - main
 
 jobs:
-  init_setup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Compose
-        uses: docker/setup-compose-action@v1
-
-      - name: Create .env file
-        run: |
-          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
-          for service in $SERVICES; do
-            touch backend/services/$service/.env || true
-          done
-
   isort:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -39,11 +22,15 @@ jobs:
 
       - name: Run ISort
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} --run isort --check-only --diff
 
   black:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -58,11 +45,15 @@ jobs:
 
       - name: Run Black
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} --run black --check
 
   bandit:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -77,11 +68,15 @@ jobs:
 
       - name: Run Bandit
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} bandit
 
   flake8:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -96,11 +91,15 @@ jobs:
 
       - name: Run Flake8
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} flake8
 
   mypy:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -115,11 +114,15 @@ jobs:
 
       - name: Run MyPy
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} mypy
 
   test:
     runs-on: ubuntu-latest
-    needs: init_setup
     strategy:
       matrix:
         service: [ globdoc, identity ]
@@ -134,4 +137,9 @@ jobs:
 
       - name: Run Pytest
         run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            echo echo "Creating empty .env for backend/services/$service"
+            touch backend/services/$service/.env || true
+          done
           docker compose run --rm test ${{ matrix.service }} pytest
