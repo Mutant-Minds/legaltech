@@ -245,7 +245,7 @@ function run_steps() {
 
   # Set PYTHONPATH dynamically
   if [[ "$SERVICE_TYPE" == "service" ]]; then
-    export PYTHONPATH="$PYPROJECT_DIR/src:$BACKEND_DIR/libs/specter"
+    export PYTHONPATH="$PYPROJECT_DIR/app:$BACKEND_DIR/libs/specter"
   else
     export PYTHONPATH="$BACKEND_DIR/libs/$SERVICE"
   fi
@@ -283,7 +283,7 @@ function run_steps() {
 
   # Determine source directories for coverage
   if [[ "$SERVICE_TYPE" == "service" ]]; then
-    COVERAGE_SOURCE="--cov=$PYPROJECT_DIR/src --cov=$SPECTER_DIR"
+    COVERAGE_SOURCE="--cov=$PYPROJECT_DIR/app --cov=$SPECTER_DIR"
   else
     COVERAGE_SOURCE="--cov=$PYPROJECT_DIR" # For libraries
   fi

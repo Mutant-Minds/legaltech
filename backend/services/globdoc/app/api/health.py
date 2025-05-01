@@ -1,7 +1,6 @@
-from fastapi import APIRouter, FastAPI
-
 import schemas
 from core.config import settings
+from fastapi import APIRouter, FastAPI
 
 health_api = FastAPI(
     title="Health Check",
