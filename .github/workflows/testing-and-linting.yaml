@@ -73,7 +73,7 @@ jobs:
             echo echo "Creating empty .env for backend/services/$service"
             touch backend/services/$service/.env || true
           done
-          docker compose run --rm test ${{ matrix.service }} bandit
+          docker compose run --rm test ${{ matrix.service }} --run bandit
 
   flake8:
     runs-on: ubuntu-latest
@@ -96,7 +96,7 @@ jobs:
             echo echo "Creating empty .env for backend/services/$service"
             touch backend/services/$service/.env || true
           done
-          docker compose run --rm test ${{ matrix.service }} flake8
+          docker compose run --rm test ${{ matrix.service }} --run flake8
 
   mypy:
     runs-on: ubuntu-latest
@@ -119,7 +119,7 @@ jobs:
             echo echo "Creating empty .env for backend/services/$service"
             touch backend/services/$service/.env || true
           done
-          docker compose run --rm test ${{ matrix.service }} mypy
+          docker compose run --rm test ${{ matrix.service }} --run mypy
 
   test:
     runs-on: ubuntu-latest
@@ -142,4 +142,4 @@ jobs:
             echo echo "Creating empty .env for backend/services/$service"
             touch backend/services/$service/.env || true
           done
-          docker compose run --rm test ${{ matrix.service }} pytest
+          docker compose run --rm test ${{ matrix.service }} --run pytest
