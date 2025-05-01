@@ -6,8 +6,30 @@ on:
       - main
 
 jobs:
+  init_setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Create .env file
+        run: |
+          SERVICES=$(find backend/services -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          for service in $SERVICES; do
+            touch backend/services/$service/.env || true
+          done
+
   isort:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: ISort - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -17,11 +39,16 @@ jobs:
 
       - name: Run ISort
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh isort --check-only --diff
+          docker compose run --rm test ${{ matrix.service }} --run isort --check-only --diff
 
   black:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: Black - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -31,11 +58,16 @@ jobs:
 
       - name: Run Black
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh black --check
+          docker compose run --rm test ${{ matrix.service }} --run black --check
 
   bandit:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: Bandit - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -45,11 +77,16 @@ jobs:
 
       - name: Run Bandit
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh bandit
+          docker compose run --rm test ${{ matrix.service }} bandit
 
   flake8:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: Flake8 - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -59,11 +96,16 @@ jobs:
 
       - name: Run Flake8
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh flake8
+          docker compose run --rm test ${{ matrix.service }} flake8
 
   mypy:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: MyPy - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -73,11 +115,16 @@ jobs:
 
       - name: Run MyPy
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh mypy
+          docker compose run --rm test ${{ matrix.service }} mypy
 
   test:
     runs-on: ubuntu-latest
+    needs: init_setup
+    strategy:
+      matrix:
+        service: [ globdoc, identity ]
+
+    name: Pytest - ${{ matrix.service }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -87,5 +134,4 @@ jobs:
 
       - name: Run Pytest
         run: |
-          chmod +x ci/testrun_for_all_services.sh
-          ./ci/testrun_for_all_services.sh pytest
+          docker compose run --rm test ${{ matrix.service }} pytest
