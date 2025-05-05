@@ -1,9 +1,9 @@
 import os
 from functools import lru_cache
 
+import schemas
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from specter.core.config import CommonSettings
-from specter.schemas import Environment
 
 
 @lru_cache()
@@ -14,7 +14,7 @@ def retrieve_settings() -> BaseSettings:
     Returns:
         BaseSettings: Pydantic BaseSettings object
     """
-    if os.getenv("ENVIRONMENT") == Environment.TEST.value:
+    if os.getenv("ENVIRONMENT") == schemas.Environment.TEST.value:
         return TestSettings()
     return Settings()
 

@@ -41,7 +41,7 @@ class CommonSettings(BaseSettings):
             return v
         return str(
             PostgresDsn.build(
-                scheme="postgresql+psycopg2",
+                scheme="postgresql+asyncpg",
                 username=values.data.get("POSTGRES_USER"),
                 password=values.data.get("POSTGRES_PASSWORD"),
                 host=values.data.get("POSTGRES_SERVER"),

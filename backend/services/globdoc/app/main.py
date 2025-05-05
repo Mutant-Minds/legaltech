@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+from api.health import health_api
+from core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from specter.apiutil.exception_handler import register_handlers
-
-from api.health import health_api
-from core.config import settings
 
 
 @asynccontextmanager

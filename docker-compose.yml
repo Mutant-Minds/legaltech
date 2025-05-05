@@ -6,8 +6,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: changethis
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pg-data:/var/lib/postgresql/data
     networks:
@@ -22,8 +22,8 @@ services:
     ports:
       - "8888:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@legaltech.com
-      PGADMIN_DEFAULT_PASSWORD: changethis
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
@@ -35,6 +35,7 @@ services:
       dockerfile: ./../docker/globdoc.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
+    container_name: globdoc-service
     depends_on:
       - pgdb
     env_file:
@@ -43,11 +44,38 @@ services:
       - '8000:8080'
     expose:
       - '8080'
+    volumes:
+      - ./backend/services/globdoc/app:/app/app
+      - ./backend/libs/specter:/app/libs/specter
+    networks:
+      - legaltech
+
+  identity:
+    build:
+      context: ./backend
+      dockerfile: ./../docker/identity.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    container_name: identity-service
+    depends_on:
+      - pgdb
+    env_file:
+      - ./backend/services/identity/.env
+    ports:
+      - '8001:8080'
+    expose:
+      - '8080'
+    volumes:
+      - ./backend/services/identity/app:/app/app
+      - ./backend/libs/specter:/app/libs/specter
+    networks:
+      - legaltech
 
   test:
     build:
       context: .
       dockerfile: docker/test.dockerfile
+    container_name: testing-and-linting
     volumes:
       - .:/app
       - ./docker/entrypoints:/entrypoints
@@ -55,6 +83,30 @@ services:
     environment:
       - PYTHONPATH=/app
       - ENVIRONMENT=test
+    networks:
+      - legaltech
+    profiles:
+      - tools
+
+  liquibase:
+    image: liquibase/liquibase:latest
+    container_name: liquibase-runner
+    depends_on:
+      - pgdb
+    environment:
+      - LIQUIBASE_COMMAND_URL=jdbc:postgresql://pgdb:5432/${LIQUIBASE_DB_NAME}
+      - LIQUIBASE_COMMAND_CHANGELOG_FILE=db-changelog.xml
+      - LIQUIBASE_COMMAND_USERNAME=${LIQUIBASE_DB_USER}
+      - LIQUIBASE_COMMAND_PASSWORD=${LIQUIBASE_DB_PASSWORD}
+      - WAIT_FOR_IT_SECONDS=60
+    working_dir: /migrations
+    command: update
+    volumes:
+      - ./liquibase:/migrations
+    networks:
+      - legaltech
+    profiles:
+      - tools
 
 volumes:
   pg-data:

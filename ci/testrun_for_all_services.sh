@@ -12,11 +12,13 @@ for SERVICE in $SERVICES; do
     touch "$ENV_PATH"
   fi
 
-  ENV_TESTING_PATH="backend/services/$SERVICE/.env.testing"
+  ENV_TESTING_PATH="backend/services/$SERVICE/.env.test"
   if [ ! -f "$ENV_TESTING_PATH" ]; then
     echo "Warning: Missing .env.testing in $SERVICE"
   fi
+done
 
+for SERVICE in $SERVICES; do
   echo "Running '$COMMAND' for service: $SERVICE"
   docker compose run --rm test "$SERVICE" --run "$COMMAND" "${EXTRA_ARGUMENTS[@]}"
 done

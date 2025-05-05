@@ -96,6 +96,13 @@ This structure helps new contributors quickly understand where to find and place
     docker compose up -d
     ```
 
+3. **Running Liquibase (database migrations) for the shared database:**
+
+    ```bash
+    docker compose --profile tools up liquibase
+    ```
+   Note: Currently only 2 tables have been created
+
 ---
 
 ## 🧪 Testing & Linting
