@@ -1,4 +1,6 @@
+from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -13,4 +15,7 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    pass
+    sub: str
+    exp: datetime
+    aud: str
+    claims: Optional[Dict[str, Any]]

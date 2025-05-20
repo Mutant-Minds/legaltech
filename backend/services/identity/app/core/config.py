@@ -1,4 +1,5 @@
 import os
+import secrets
 from functools import lru_cache
 
 import schemas
@@ -20,10 +21,11 @@ def retrieve_settings() -> BaseSettings:
 
 
 class Settings(CommonSettings):  # type: ignore[misc]
-    pass
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    SECRET_KEY: str = secrets.token_urlsafe(32)
 
 
-class TestSettings(CommonSettings):  # type: ignore[misc]
+class TestSettings(Settings):
     model_config = SettingsConfigDict(
         env_file=".env.test",
         env_file_encoding="utf-8",

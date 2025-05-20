@@ -7,4 +7,4 @@ from specter.schemas import (
     Msg,
 )
 from .register import RegisterUser
-from .token import Token, TokenPayload
+from .token import Token, TokenPayload, TokenType
